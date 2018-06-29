@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import print_function
 from six import iteritems
-import logging
 import os
 import copy
 from sys import stderr
@@ -40,16 +39,6 @@ def error(msg):
 
 def warn(msg):
     print(_yellow(">>> " + msg, True))
-
-
-# Log
-logging.basicConfig(
-    # filename=os.path.join("log", time.asctime().replace(':',' ').replace(' ', '_')),
-    level=logging.DEBUG,
-    #format='(%(process)d-%(threadName)s) [%(asctime)s] [%(levelname)s] [%(pathname)s:%(funcName)s:%(lineno)d]  %(message)s',
-    format='[%(levelname)s] %(message)s %(pathname)s:%(funcName)s:%(lineno)d',
-    datefmt='%m/%d/%Y %I:%M:%S %p')
-log = logging
 
 
 def recur_create_file(path):

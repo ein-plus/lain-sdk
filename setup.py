@@ -6,10 +6,9 @@ requirements = [
     'six>=1.9.0',
     'future>=0.16.0',
     'Jinja2==2.7.3',
-    'PyYAML==3.12',
-    'enum34==1.1.6',
+    'PyYAML>=3.12',
+    'enum34;python_version<"3.4"',
     'requests>=2.6.1',
-    'websocket-client==0.32.0',
     'docker==2.6.1',
     'jsonschema==2.5.1',
 ]

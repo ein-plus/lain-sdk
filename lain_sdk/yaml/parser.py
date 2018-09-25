@@ -1,20 +1,22 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import re
-import yaml
-from jinja2 import Template
-import json
 import copy
+import json
 import os
-from six import iteritems
+import re
 from enum import Enum
 from os.path import abspath
+
+import yaml
+from jinja2 import Template
 from past.builtins import basestring
 
+from six import iteritems, itervalues, next
+
 from ..mydocker import gen_image_name
-from .conf import PRIVATE_REGISTRY, DOMAIN, DOCKER_APP_ROOT
 from ..util import lain_based_path
+from .conf import DOCKER_APP_ROOT, DOMAIN, PRIVATE_REGISTRY
 
 SOCKET_TYPES = 'tcp udp'
 SocketType = Enum('SocketType', SOCKET_TYPES)
@@ -222,7 +224,7 @@ class Port:
                 raise Exception('not supported port desc %s' % (meta, ))
         elif isinstance(meta, dict):
             self.port = list(meta.keys())[0]
-            _pi = meta.values()[0][0].split(':')
+            _pi = next(itervalues(meta))[0].split(':')
             assert _pi[0] == 'type'
             self.type = SocketType[_pi[1]]
         else:
@@ -421,7 +423,7 @@ class Proc:
             if log not in self.logs:
                 self.logs.append(log)
 
-        self.volumes.append('/lain/logs') # mount /lain/logs by default for stdout/stderr
+        self.volumes.append('/lain/logs')
 
         # add default system volume
         self.system_volumes = DEFAULT_SYSTEM_VOLUMES

@@ -1,20 +1,18 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import time
-import re
 import collections
 import os.path as p
-from functools import partial
+import re
 import tempfile
+import time
+from functools import partial
+from subprocess import call
 
-from .yaml.util import load_template
+from . import mydocker
+from .util import error, file_parent_dir, info, meta_version, mkdir_p, rm, warn
 from .yaml.conf import DOCKER_APP_ROOT, PRIVATE_REGISTRY, user_config
 from .yaml.parser import LainConf
-from . import mydocker
-from .util import (error, warn, info, mkdir_p, rm, file_parent_dir,
-                   meta_version)
-from subprocess import call
+from .yaml.util import load_template
 
 DOMAIN_KEY = user_config.domain_key
 
@@ -280,7 +278,7 @@ class LainYaml(object):
             return (False, None)
 
         try:
-            host_release_tar = tempfile.NamedTemporaryFile(dir='/tmp',delete=False).name
+            host_release_tar = tempfile.NamedTemporaryFile(dir='/tmp', delete=False).name
             untar = tempfile.mkdtemp(dir='/tmp')
 
             mydocker.copy_to_host(copy_inter_name, p.join(

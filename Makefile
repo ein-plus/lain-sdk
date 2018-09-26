@@ -1,5 +1,3 @@
--include ./mymakefile
-
 test: clean
 	- rm -f unittest.xml
 	py.test -s -vvvv --junit-xml=unittest.xml tests

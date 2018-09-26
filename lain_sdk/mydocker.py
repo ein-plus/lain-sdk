@@ -1,21 +1,19 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from six import iteritems
-import os
-import time
-import shutil
-import tempfile
-import requests
-import subprocess
-import docker
-from jinja2 import Template
-from .yaml.conf import DOCKER_APP_ROOT
-from .util import (info, error,
-                   recur_create_file, rm, mkdir_p,
-                   parse_registry_auth, get_jwt_for_registry,
-                   REGISTRY_CONNECT_TIMEOUT, REGISTRY_READ_TIMEOUT)
 
+import os
+import shutil
+import subprocess
+import tempfile
+import time
+
+import docker
+import requests
+from jinja2 import Template
+
+from .util import (REGISTRY_CONNECT_TIMEOUT, REGISTRY_READ_TIMEOUT, error,
+                   get_jwt_for_registry, info, mkdir_p, parse_registry_auth,
+                   recur_create_file, rm)
 
 DOCKER_BASE_URL = os.environ.get('DOCKER_HOST', '')
 
@@ -145,20 +143,6 @@ def build(name, context, ignore, template, params, build_args):
     return name
 
 
-def get_latest_container_id():
-    try:
-        output = _docker(['ps', '-l', '-q'], capture_output=True)
-    except subprocess.CalledProcessError:
-        return -1
-
-    try:
-        container_id = output.splitlines()[-1]
-    except IndexError:  # No containers:
-        return -1
-
-    return container_id
-
-
 def remove_container(container_id, kill=True):
     info('removing container {} ...'.format(container_id))
     if kill:
@@ -279,17 +263,6 @@ def cp(container_name, file):
     info(output)
 
 
-def inspect(container_name):
-    output = _docker(['inspect', container_name], capture_output=True)
-    info(output)
-
-
-def inspect_port(container_name):
-    info('port mapping:')
-    output = _docker(['port', container_name], capture_output=True)
-    info(output)
-
-
 def tag(src, dest):
     info('tag {} as {}'.format(src, dest))
     retcode = _docker(['tag', src, dest])
@@ -344,7 +317,7 @@ def get_tag_list_in_registry(registry, appname):
         r = requests.get(tag_list_url, headers=headers,
                          timeout=(REGISTRY_CONNECT_TIMEOUT, REGISTRY_READ_TIMEOUT))
         return r.json()['tags']
-    except:
+    except Exception:
         return []
 
 

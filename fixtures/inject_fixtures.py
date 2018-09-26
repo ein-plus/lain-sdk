@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 
 from os import path
-import json
-from time import time
+
 import pytest
-from mock import Mock
 
 PWD = path.dirname(path.realpath(__file__))
 FIXTURE_DATA_PATH = path.join(PWD, 'data')

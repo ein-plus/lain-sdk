@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
-
 import os
 import shutil
 import subprocess
@@ -330,14 +328,11 @@ def get_tag_list_in_docker_daemon(registry, appname):
         if not repo_tags:
             continue
         for repo_tag in repo_tags:
-            try:
-                s_list = repo_tag.split(":")
-                tag = s_list[-1]
-                repo = ":".join(s_list[:-1])
-                if repo == "%s/%s" % (registry, appname) and tag not in tag_list:
-                    tag_list.append(tag)
-            except Exception as e:
-                print(e)
+            s_list = repo_tag.split(":")
+            tag = s_list[-1]
+            repo = ":".join(s_list[:-1])
+            if repo == "%s/%s" % (registry, appname) and tag not in tag_list:
+                tag_list.append(tag)
     return tag_list
 
 

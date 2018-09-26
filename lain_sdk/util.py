@@ -1,17 +1,20 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 from __future__ import print_function
-from six import iteritems
-import os
+
 import copy
-from sys import stderr
 import errno
-import subprocess
+import os
 import shutil
+import subprocess
+from sys import stderr
+
 import requests
-from requests.auth import HTTPBasicAuth
-from .yaml.conf import user_config
 from docker import auth
+from requests.auth import HTTPBasicAuth
+
+from six import iteritems
+
+from .yaml.conf import user_config
 
 
 # copied from HongQN

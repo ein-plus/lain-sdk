@@ -1,16 +1,15 @@
 # -*- coding: utf-8 -*-
-from __future__ import print_function
 import json
-import yaml
-import pytest
 from unittest import TestCase
-from lain_sdk.yaml.parser import (
-    LainConf, ProcType, Proc,
-    just_simple_scale,
-    render_resource_instance_meta, DEFAULT_SYSTEM_VOLUMES,
-    DOMAIN,
-    MIN_SETUP_TIME, MAX_SETUP_TIME, MIN_KILL_TIMEOUT, MAX_KILL_TIMEOUT
-)
+
+import yaml
+
+import pytest
+from lain_sdk.yaml.parser import (DEFAULT_SYSTEM_VOLUMES, DOMAIN,
+                                  MAX_SETUP_TIME, MIN_KILL_TIMEOUT,
+                                  MIN_SETUP_TIME, LainConf, Proc, ProcType,
+                                  just_simple_scale,
+                                  render_resource_instance_meta)
 
 FIXTURES_EXTRA_DOMAINS = ['extra.domain1.com', 'extra.domain2.org']
 
@@ -211,7 +210,7 @@ class LainConfTests(TestCase):
         hello_conf.load(meta_yaml, meta_version, None)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['web'].cmd == None
+        assert hello_conf.procs['web'].cmd is None
 
     def test_lain_conf_port_with_type(self):
         meta_yaml = '''
@@ -587,7 +586,7 @@ class LainConfTests(TestCase):
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
         assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['web'].secret_files_bypass == False
+        assert hello_conf.procs['web'].secret_files_bypass is False
         assert hello_conf.procs['web'].secret_files == [
             '/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello']
 
@@ -631,11 +630,9 @@ class LainConfTests(TestCase):
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
         assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['web'].secret_files_bypass == True
+        assert hello_conf.procs['web'].secret_files_bypass is True
         assert hello_conf.procs['web'].secret_files == [
             '/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello']
-
-
 
     def test_lain_conf_proc_env_notexists(self):
         meta_yaml = '''
@@ -789,11 +786,6 @@ class LainConfTests(TestCase):
         assert hello_conf.procs['web'].memory == '64m'
         assert hello_conf.procs['web'].volumes == ['/data', '/var/lib/mysql', '/lain/logs']
         assert hello_conf.procs['web'].port[80].port == 80
-        my_mountpoint = hello_conf.procs['web'].mountpoint
-        expect_mountpoint = [
-            "%s.%s" % (hello_conf.appname, DOMAIN),
-            "%s.lain" % hello_conf.appname,
-        ]
 
         # resource instance test
         resource_instance_meta_yaml = '''
@@ -1219,43 +1211,6 @@ class LainConfTests(TestCase):
             assert 'proc (type is web but name is not web) should have own mountpoint.' in str(
                 e.value)
 
-        # resource instance test
-        resource_instance_meta_yaml = '''
-                    appname: resource.demo-service.hello
-                    build:
-                        base: golang
-                        prepare:
-                            - echo prepare1
-                            - echo prepare2
-                        script:
-                            - echo buildscript1
-                            - echo buildscript2
-                    release:
-                        dest_base: ubuntu
-                        copy:
-                            - src: hello
-                              dest: /usr/bin/hello
-                            - src: entry.sh
-                              dest: /entry.sh
-                    test:
-                        script:
-                            - go test
-                    service.echo:
-                        image: regsitry.lain.local/demo-service:release-1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc
-                        cmd: ./echo -p 1234
-                        port: 1234
-                        num_instances: 3
-                        portal:
-                            allow_clients: "hello"
-                            image: regsitry.lain.local/demo-service:release-1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc
-                            cmd: ./proxy
-                            port: 4321
-                    web.foo:
-                        cmd: foo
-                        memory: 64m
-                    notify:
-                        slack: "#demo-service"
-                    '''
         repo_name = 'resource.demo-service.hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
@@ -1475,7 +1430,6 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#demo-service"
                     '''
-        repo_name = 'resource/demo-service/hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
         r_conf.load(meta_yaml, meta_version, None)
@@ -1525,7 +1479,6 @@ class LainConfTests(TestCase):
                     proc.echo-client:
                         cmd: ./ping echo1 echo2 bark1 -p 4321
                     '''
-        repo_name = 'echo-client'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
         echoclient_conf.load(meta_yaml, meta_version, None)
@@ -1622,7 +1575,6 @@ class LainConfTests(TestCase):
         assert echoclient_conf.appname == 'hello'
         assert echoclient_conf.procs['web'].cloud_volumes.get(
             'multi') == ['/data', '/var/lib/mysql']
-        print(echoclient_conf.procs['web'].cloud_volumes)
 
     def test_lain_conf_cloud_volumes_single_type(self):
         meta_yaml = '''
@@ -1658,10 +1610,9 @@ class LainConfTests(TestCase):
         echoclient_conf = LainConf()
         echoclient_conf.load(meta_yaml, repo_name, meta_version)
         assert echoclient_conf.appname == 'hello'
-        assert echoclient_conf.procs['web'].cloud_volumes.get('multi') == None
+        assert echoclient_conf.procs['web'].cloud_volumes.get('multi') is None
         assert echoclient_conf.procs['web'].cloud_volumes.get(
             'single') == ['/data', '/var/lib/mysql']
-        print(echoclient_conf.procs['web'].cloud_volumes)
 
     def test_lain_conf_volume_backup(self):
         meta_yaml = '''
@@ -1936,9 +1887,6 @@ def test_resource_instance_meta_render_full():
     resource_instance_meta = render_resource_instance_meta(
         resource_appname, resource_meta_version, resource_meta_template,
         client_appname, context, registry, domain
-    )
-    resource_default_image = '{}/{}:release-{}'.format(
-        registry, resource_appname, resource_meta_version
     )
     resource_instance_yaml = yaml.safe_load(resource_instance_meta)
     assert 'apptype' not in resource_instance_yaml

@@ -1,12 +1,8 @@
-# -*- coding: utf-8
-from __future__ import print_function
-import pytest
 from lain_sdk.yaml.lain_user_config import LainUserConfig
 
 
 def test_lain_user_conf_base_empty_smoke(tmpdir):
     etc_path = tmpdir.mkdir("etc").mkdir("lain")
-    print(etc_path.strpath)
     assert LainUserConfig.get_config_from(etc_path.strpath) == {}
 
 

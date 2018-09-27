@@ -8,17 +8,9 @@ import pytest
 from lain_sdk.yaml.parser import (DEFAULT_SYSTEM_VOLUMES, DOMAIN,
                                   MAX_SETUP_TIME, MIN_KILL_TIMEOUT,
                                   MIN_SETUP_TIME, LainConf, Proc, ProcType,
-                                  just_simple_scale,
                                   render_resource_instance_meta)
 
 FIXTURES_EXTRA_DOMAINS = ['extra.domain1.com', 'extra.domain2.org']
-
-
-class LainConfUtilsTests(TestCase):
-
-    def test_just_simple_scale(self):
-        assert just_simple_scale('cpu', Proc)
-        assert not just_simple_scale('cmd', Proc)
 
 
 class LainConfTests(TestCase):
@@ -668,81 +660,6 @@ class LainConfTests(TestCase):
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
         assert hello_conf.procs['web'].port[80].port == 80
-
-    def test_lain_conf_proc_patch(self):
-        meta_yaml = '''
-                    appname: hello
-                    build:
-                        base: golang
-                        script: [go build -o hello]
-                    release:
-                        dest_base: ubuntu
-                        copy:
-                            - {dest: /usr/bin/hello, src: hello}
-                    test:
-                        script: [go test]
-                    proc.mailer: {type: worker, cmd: hello, port: 80, memory: 128m}
-                    notify: {slack: '#hello'}
-                    '''
-        payload = {
-            "cpu": 2,
-            "memory": "64m",
-            "num_instances": 2,
-            "cmd": "hello world",
-            "port": 8080
-        }
-        meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
-        hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
-        mailer = hello_conf.procs['mailer']
-        assert mailer.cpu == 0
-        assert mailer.memory == "128m"
-        assert mailer.num_instances == 1
-        assert mailer.cmd == ["hello"]
-        assert mailer.port[80].port == 80
-        mailer.patch(payload)
-        mailer = hello_conf.procs['mailer']
-        assert mailer.cpu == 2
-        assert mailer.memory == "64m"
-        assert mailer.num_instances == 2
-        assert mailer.cmd == ["hello", "world"]
-        assert mailer.port[8080].port == 8080
-
-    def test_lain_conf_proc_patch_only_simple_scale_meta(self):
-        meta_old = {
-            "memory": "32m",
-            "num_instances": 1,
-            "cmd": "hello",
-            "port": 80
-        }
-        meta_new = {
-            "cpu": 2,
-            "memory": "64m",
-            "num_instances": 2,
-            "cmd": "hello world",
-            "port": 8080
-        }
-        proc = Proc()
-        proc.load('web', meta_old, 'hello',
-                  '111111111-aaaaaaaaaaaaaaaaa', None)
-        proc1 = Proc()
-        proc1.load('web', meta_new, 'hello',
-                   '22222222-bbbbbbbbbbbbbbbbb', None)
-        assert proc.name == 'web'
-        assert proc.type.name == 'web'
-        assert proc.cpu == 0
-        assert proc.memory == "32m"
-        assert proc.cmd == ["hello"]
-        assert proc.num_instances == 1
-        assert proc.port[80].port == 80
-        proc.patch_only_simple_scale_meta(proc1)
-        assert proc.name == 'web'
-        assert proc.type.name == 'web'
-        assert proc.cpu == 2
-        assert proc.memory == "64m"
-        assert proc.cmd == ["hello"]
-        assert proc.num_instances == 2
-        assert proc.port[80].port == 80
 
     def test_lain_conf_auto_insert_default_mountpoint_for_procname_web(self):
         meta_yaml = '''

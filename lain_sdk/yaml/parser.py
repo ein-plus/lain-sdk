@@ -48,12 +48,6 @@ def is_section(keyword, section_class):
     return False
 
 
-def just_simple_scale(keyword, scale_class):
-    if keyword in scale_class.SIMPLE_SCALE_KEYWORDS._member_names_:
-        return True
-    return False
-
-
 def split_path(path):
     pathlist = []
     while 1:
@@ -486,24 +480,6 @@ class Proc:
         flts = Filters()
         flts.load(meta)
         return flts.filters
-
-    def patch(self, payload):
-        # 这里仅限于proc自身信息的变化，不可包括meta_version
-        self.entrypoint = payload.get('entrypoint', self.entrypoint)
-        meta_cmd = payload.get('cmd', self.cmd)
-        self.cmd = self.__to_exec_form(meta_cmd)
-        self.cpu = payload.get('cpu', self.cpu)
-        self.memory = payload.get('memory', self.memory)
-        self.num_instances = payload.get('num_instances', self.num_instances)
-        port_meta = payload.get('port', None)
-        if port_meta:
-            # TODO 支持multi port
-            self.port = self._load_ports(port_meta)
-
-    def patch_only_simple_scale_meta(self, proc):
-        # 仅patch此proc的动态scale的meta信息
-        for k in self.SIMPLE_SCALE_KEYWORDS._member_names_:
-            self.__dict__[k] = proc.__dict__[k]
 
     def __to_exec_form(self, command_and_params):
         """ 将 shell form(空格分隔) 转变为 exec form(string list)，或者保持 exec form 的格式

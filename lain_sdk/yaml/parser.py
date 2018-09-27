@@ -259,8 +259,8 @@ class Proc:
     setup_time = 0
     kill_timeout = 10
 
-    def load(self, keyword, meta, appname, meta_version, default_image, **cluster_config):
-        default_image_name = default_image or gen_image_name(
+    def load(self, keyword, meta, appname, meta_version, **cluster_config):
+        image = gen_image_name(
             appname,
             'release',
             meta_version=meta_version,
@@ -277,7 +277,7 @@ class Proc:
             self.name = proc_info[0]
             self.type = ProcType[proc_info[0]]  # 放弃meta里面的type定义
 
-        self.image = meta.get('image', default_image_name)
+        self.image = meta.get('image', image)
         self.entrypoint = self.__get_entrypoint(meta)
         self.cmd = self.__get_cmd(meta)
         self.user = meta.get('user', '')
@@ -611,7 +611,7 @@ class LainConf:
     use_services = {}
     use_resources = {}
 
-    def load(self, meta_yaml, meta_version, default_image, **cluster_config):
+    def load(self, meta_yaml, meta_version, **cluster_config):
         meta = yaml.safe_load(meta_yaml)
         self.meta_version = meta_version
         self.appname = meta.get('appname', None)
@@ -621,7 +621,7 @@ class LainConf:
         if self.appname in INVALID_APPNAMES:
             raise Exception('invalid lain conf: appname {} should not in {}'.format(
                 self.appname, INVALID_APPNAMES))
-        self.procs = self._load_procs(meta, self.appname, meta_version, default_image,
+        self.procs = self._load_procs(meta, self.appname, meta_version,
                                       registry=cluster_config.get('registry', PRIVATE_REGISTRY),
                                       domains=cluster_config.get('domains', [DOMAIN]))
         self.build = self._load_build(meta)
@@ -637,12 +637,12 @@ class LainConf:
         if use_resources_meta:
             self.use_resources = self._load_use_resources(use_resources_meta)
 
-    def _load_procs(self, meta, appname, meta_version, default_image, **cluster_config):
+    def _load_procs(self, meta, appname, meta_version, **cluster_config):
         _procs = {}
 
         def _proc_load(key, meta, **cluster_config):
             _proc = Proc()
-            _proc.load(key, meta, appname, meta_version, default_image,
+            _proc.load(key, meta, appname, meta_version,
                        registry=cluster_config.get('registry', PRIVATE_REGISTRY),
                        domains=cluster_config.get('domains', [DOMAIN]))
 
@@ -740,7 +740,7 @@ def render_resource_instance_meta(
     instance_meta = yaml.dump(instance_yaml, default_flow_style=False)
     resource_config = LainConf()
     resource_config.load(
-        instance_meta, resource_meta_version, None,
+        instance_meta, resource_meta_version,
         registry=registry, domains=domains
     )
     # 将 appname 替换成 resource instance appname

@@ -7,7 +7,7 @@ import yaml
 import pytest
 from lain_sdk.yaml.parser import (DEFAULT_SYSTEM_VOLUMES, DOMAIN,
                                   MAX_SETUP_TIME, MIN_KILL_TIMEOUT,
-                                  MIN_SETUP_TIME, LainConf, Proc, ProcType,
+                                  MIN_SETUP_TIME, LainConf, ProcType,
                                   render_resource_instance_meta)
 
 FIXTURES_EXTRA_DOMAINS = ['extra.domain1.com', 'extra.domain2.org']
@@ -50,7 +50,7 @@ class LainConfTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
         with pytest.raises(Exception) as e:
-            hello_conf.load(meta_yaml, meta_version, None)
+            hello_conf.load(meta_yaml, meta_version)
             assert 'invalid lain conf: no appname' in str(e.value)
 
     def test_lain_conf_smoke(self):
@@ -99,7 +99,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert hello_conf.procs['web'].memory == '64m'
@@ -138,10 +138,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#hello"
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.notify == {'slack': '#hello'}
 
@@ -164,10 +163,9 @@ class LainConfTests(TestCase):
                         cmd: hello
                         port: 80
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.notify == {}
 
@@ -199,7 +197,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].port[80].port == 80
         assert hello_conf.procs['web'].cmd is None
@@ -239,7 +237,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert hello_conf.procs['web'].volumes == ['/data', '/var/lib/mysql', '/lain/logs']
@@ -256,10 +254,9 @@ class LainConfTests(TestCase):
                             - /data
                             - /var/lib/mysql
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].volumes == ['/data', '/var/lib/mysql', '/lain/logs']
         assert hello_conf.procs['web'].logs == []
@@ -278,10 +275,9 @@ class LainConfTests(TestCase):
                             - b.log
                             - a.log
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].volumes == [
             '/data', '/var/lib/mysql', '/lain/logs']
@@ -325,7 +321,7 @@ class LainConfTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
         with pytest.raises(Exception) as e:
-            hello_conf.load(meta_yaml, meta_version, None)
+            hello_conf.load(meta_yaml, meta_version)
         assert 'not supported port desc 80:tcp:foo' in str(e.value)
 
     def test_lain_conf_port_with_type_in_property_list(self):
@@ -363,7 +359,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert hello_conf.procs['web'].volumes == ['/data', '/var/lib/mysql', '/lain/logs']
@@ -403,7 +399,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert hello_conf.procs['web'].volumes == ['/data', '/var/lib/mysql', '/lain/logs']
@@ -431,7 +427,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         self.assertEquals(hello_conf.appname, 'hello')
         self.assertEquals(hello_conf.procs['web1'].cpu, 1)
         self.assertEquals(hello_conf.procs['web1'].port[80].port, 80)
@@ -476,7 +472,7 @@ class LainConfTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
         with pytest.raises(Exception) as e:
-            hello_conf.load(meta_yaml, meta_version, None)
+            hello_conf.load(meta_yaml, meta_version)
         assert 'duplicated proc name web' in str(e.value)
 
     def test_lain_conf_proc_type(self):
@@ -496,7 +492,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         self.assertEquals(hello_conf.appname, 'hello')
         self.assertEquals(hello_conf.procs['mailer'].type, ProcType.worker)
         self.assertEquals(hello_conf.procs['mailer'].memory, '128m')
@@ -533,7 +529,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
@@ -570,10 +566,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#hello"
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
@@ -614,10 +609,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#hello"
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
@@ -655,7 +649,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == []
         assert hello_conf.procs['web'].volumes == ['/lain/logs']
@@ -697,7 +691,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert hello_conf.procs['web'].memory == '64m'
@@ -752,7 +746,7 @@ class LainConfTests(TestCase):
         domains = [DOMAIN] + FIXTURES_EXTRA_DOMAINS
         r_conf = LainConf()
         r_conf.load(resource_instance_meta_yaml,
-                    meta_version, None, domains=domains)
+                    meta_version, domains=domains)
         assert r_conf.appname == 'resource.demo-service.hello'
         assert r_conf.procs['web'].env == ['ENV_A=enva', 'ENV_B=envb']
         assert r_conf.procs['web'].memory == '64m'
@@ -792,7 +786,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['worker'].memory == '64m'
         assert hello_conf.procs['worker'].mountpoint == []
@@ -834,10 +828,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#demo-service"
                     '''
-        repo_name = 'resource.demo-service.hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
-        r_conf.load(resource_instance_meta_yaml, repo_name, meta_version)
+        r_conf.load(resource_instance_meta_yaml, meta_version)
         assert r_conf.appname == 'resource.demo-service.hello'
         assert r_conf.procs['echo'].mountpoint == []
         assert r_conf.procs['worker'].memory == '64m'
@@ -882,7 +875,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None, domains=[
+        hello_conf.load(meta_yaml, meta_version, domains=[
                         DOMAIN] + FIXTURES_EXTRA_DOMAINS)
         assert hello_conf.appname == 'hello'
         my_mountpoint = hello_conf.procs['web'].mountpoint
@@ -961,10 +954,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#demo-service"
                     '''
-        repo_name = 'resource.demo-service.hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
-        r_conf.load(resource_instance_meta_yaml, repo_name, meta_version)
+        r_conf.load(resource_instance_meta_yaml, meta_version)
         assert r_conf.appname == 'resource.demo-service.hello'
         my_mountpoint = r_conf.procs['web'].mountpoint
         app_domain = 'hello.demo-service.resource'
@@ -1022,7 +1014,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None, domains=[
+        hello_conf.load(meta_yaml, meta_version, domains=[
                         DOMAIN] + FIXTURES_EXTRA_DOMAINS)
         assert hello_conf.appname == 'hello'
         my_mountpoint = hello_conf.procs['web'].mountpoint
@@ -1079,10 +1071,9 @@ class LainConfTests(TestCase):
                     notify:
                         slack: "#demo-service"
                     '''
-        repo_name = 'resource.demo-service.hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
-        r_conf.load(resource_instance_meta_yaml, repo_name, meta_version)
+        r_conf.load(resource_instance_meta_yaml, meta_version)
         assert r_conf.appname == 'resource.demo-service.hello'
         app_domain = 'hello.demo-service.resource'
         my_mountpoint = r_conf.procs['web'].mountpoint
@@ -1124,15 +1115,14 @@ class LainConfTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
         with pytest.raises(Exception) as e:
-            hello_conf.load(meta_yaml, meta_version, None)
+            hello_conf.load(meta_yaml, meta_version)
             assert 'proc (type is web but name is not web) should have own mountpoint.' in str(
                 e.value)
 
-        repo_name = 'resource.demo-service.hello'
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
         with pytest.raises(Exception) as e:
-            r_conf.load(meta_yaml, repo_name, meta_version)
+            r_conf.load(meta_yaml, meta_version)
             assert 'proc (type is web but name is not web) should have own mountpoint.' in str(
                 e.value)
 
@@ -1170,7 +1160,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['echo'].port[1234].port == 1234
         assert hello_conf.procs['echo'].type == ProcType.worker
@@ -1215,7 +1205,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, meta_version, None)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['echo'].port[1234].port == 1234
         assert hello_conf.procs['echo'].type == ProcType.worker
@@ -1254,7 +1244,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, meta_version, None)
+        echoclient_conf.load(meta_yaml, meta_version)
         assert echoclient_conf.appname == 'echo-client'
         assert echoclient_conf.use_services == {
             'echo-server': ["echo1", "echo2"],
@@ -1298,7 +1288,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
-        r_conf.load(meta_yaml, meta_version, None)
+        r_conf.load(meta_yaml, meta_version)
         assert r_conf.appname == 'resource.demo-service.hello'
         assert r_conf.procs['echo'].port[1234].port == 1234
         assert r_conf.procs['echo'].type == ProcType.worker
@@ -1349,7 +1339,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
         r_conf = LainConf()
-        r_conf.load(meta_yaml, meta_version, None)
+        r_conf.load(meta_yaml, meta_version)
         assert r_conf.appname == 'resource/demo-service/hello'
         assert r_conf.procs['echo'].port[1234].port == 1234
         assert r_conf.procs['echo'].type == ProcType.worker
@@ -1398,7 +1388,7 @@ class LainConfTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, meta_version, None)
+        echoclient_conf.load(meta_yaml, meta_version)
         assert echoclient_conf.appname == 'echo-client'
         assert echoclient_conf.use_resources == {
             'echo-server': {
@@ -1449,10 +1439,9 @@ class LainConfTests(TestCase):
                     proc.echo-client:
                         cmd: ./ping echo1 echo2 bark1 -p 4321
                     '''
-        repo_name = 'echo-client'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, repo_name, meta_version)
+        echoclient_conf.load(meta_yaml, meta_version)
         assert echoclient_conf.appname == 'echo-client'
         for proc in echoclient_conf.procs.values():
             assert proc.system_volumes == DEFAULT_SYSTEM_VOLUMES
@@ -1485,10 +1474,9 @@ class LainConfTests(TestCase):
                                 - /data
                                 - /var/lib/mysql
                     '''
-        repo_name = 'hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, repo_name, meta_version)
+        echoclient_conf.load(meta_yaml, meta_version)
         assert echoclient_conf.appname == 'hello'
         assert echoclient_conf.procs['web'].cloud_volumes.get(
             'multi') == ['/data', '/var/lib/mysql']
@@ -1522,10 +1510,9 @@ class LainConfTests(TestCase):
                                 - /data
                                 - /var/lib/mysql
                     '''
-        repo_name = 'hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, repo_name, meta_version)
+        echoclient_conf.load(meta_yaml, meta_version)
         assert echoclient_conf.appname == 'hello'
         assert echoclient_conf.procs['web'].cloud_volumes.get('multi') is None
         assert echoclient_conf.procs['web'].cloud_volumes.get(
@@ -1570,10 +1557,9 @@ class LainConfTests(TestCase):
                                 pre_run: backup.sh
                                 post_run: end.sh
                     '''
-        repo_name = 'echo-client'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         echoclient_conf = LainConf()
-        echoclient_conf.load(meta_yaml, repo_name, meta_version)
+        echoclient_conf.load(meta_yaml, meta_version)
 
         assert len(echoclient_conf.procs['echo-client'].backup) == 3
         for backup_info in echoclient_conf.procs['echo-client'].backup:
@@ -1606,10 +1592,9 @@ class LainConfTests(TestCase):
                     web:
                        cmd: test
                     '''
-        repo_name = 'lain/hello'
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainConf()
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.procs['web'].setup_time == MIN_SETUP_TIME
         assert hello_conf.procs['web'].kill_timeout == MIN_KILL_TIMEOUT
 
@@ -1622,7 +1607,7 @@ class LainConfTests(TestCase):
                        setup_time: 2342
                        kill_timeout: 1
                     '''
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.procs['web'].setup_time == MAX_SETUP_TIME
         assert hello_conf.procs['web'].kill_timeout == MIN_KILL_TIMEOUT
 
@@ -1635,7 +1620,7 @@ class LainConfTests(TestCase):
                        setup_time: 10
                        kill_timeout: 20
                     '''
-        hello_conf.load(meta_yaml, repo_name, meta_version)
+        hello_conf.load(meta_yaml, meta_version)
         assert hello_conf.procs['web'].setup_time == 10
         assert hello_conf.procs['web'].kill_timeout == 20
 
@@ -1761,29 +1746,25 @@ def test_resource_instance_meta_render_abbreviation():
     registry = 'registry.lain.local'
     domain = 'lain.local'
     hello_config = LainConf()
-    hello_config.load(client_meta, client_meta_version, None,
+    hello_config.load(client_meta, client_meta_version,
                       registry=registry, domain=domain)
     context = hello_config.use_resources[resource_appname]['context']
     resource_instance_meta = render_resource_instance_meta(
         resource_appname, resource_meta_version, resource_meta_template,
         client_appname, context, registry, domain
     )
-    resource_default_image = '{}/{}:release-{}'.format(
-        registry, resource_appname, resource_meta_version
-    )
     resource_instance_yaml = yaml.safe_load(resource_instance_meta)
     assert 'apptype' not in resource_instance_yaml
     resource_instance_config = LainConf()
     resource_instance_config.load(resource_instance_meta,
                                   resource_meta_version,
-                                  resource_default_image,
                                   registry=registry,
                                   domain=domain,
                                   )
     assert resource_instance_config.appname == 'resource.redis.hello'
     redis_proc = resource_instance_config.procs['redis']
     assert redis_proc.memory == '128M'
-    assert redis_proc.image == resource_default_image
+    assert redis_proc.image == 'registry.lain.local/resource.redis.hello:release-1439365340-06e92b4456116ad5e6875c8c34797d22156d44a5'
     portalredis_proc = resource_instance_config.procs['portal-redis']
     assert portalredis_proc.image == 'myregistry.lain.org/proxy:release-1234567-abc'
 
@@ -1798,7 +1779,7 @@ def test_resource_instance_meta_render_full():
     registry = 'registry.lain.local'
     domain = 'lain.local'
     hello_config = LainConf()
-    hello_config.load(client_meta, client_meta_version, None,
+    hello_config.load(client_meta, client_meta_version,
                       registry=registry, domain=domain)
     context = hello_config.use_resources[resource_appname]['context']
     resource_instance_meta = render_resource_instance_meta(
@@ -1810,7 +1791,6 @@ def test_resource_instance_meta_render_full():
     resource_instance_config = LainConf()
     resource_instance_config.load(resource_instance_meta,
                                   resource_meta_version,
-                                  None,
                                   registry=registry,
                                   domain=domain,
                                   )
@@ -1827,7 +1807,7 @@ def test_resource_instance_meta_render_full():
 def test_build_section_with_old_prepare(old_prepare_yaml):
     app_meta_version = '123456-abcdefg'
     app_conf = LainConf()
-    app_conf.load(old_prepare_yaml, 'console', app_meta_version,
+    app_conf.load(old_prepare_yaml, app_meta_version,
                   domains=['registry.lain.local', 'lain.local'])
     assert app_conf.build.base == 'sunyi00/centos-python:1.0.0'
     assert app_conf.build.script == ['( pip install -r pip-req.txt )']
@@ -1846,7 +1826,7 @@ def test_build_section_with_old_prepare(old_prepare_yaml):
 def test_build_section_with_new_prepare(new_prepare_yaml):
     app_meta_version = '123456-abcdefg'
     app_conf = LainConf()
-    app_conf.load(new_prepare_yaml, 'console', app_meta_version,
+    app_conf.load(new_prepare_yaml, app_meta_version,
                   domains=['registry.lain.local', 'lain.local'])
     assert app_conf.build.base == 'sunyi00/centos-python:1.0.0'
     assert app_conf.build.script == ['( pip install -r pip-req.txt )']
@@ -1868,7 +1848,7 @@ def test_build_section_with_new_prepare(new_prepare_yaml):
 def test_proc_section_with_healthcheck(healthcheck_yaml):
     app_meta_version = '123456-abcdefg'
     app_conf = LainConf()
-    app_conf.load(healthcheck_yaml, 'console', app_meta_version,
+    app_conf.load(healthcheck_yaml, app_meta_version,
                   domains=['registry.lain.local', 'lain.local'])
     assert app_conf.build.base == 'sunyi00/centos-python:1.0.0'
     assert app_conf.build.script == ['( pip install -r pip-req.txt )']
@@ -1891,7 +1871,7 @@ def test_proc_section_with_healthcheck(healthcheck_yaml):
 def test_release(release_yaml):
     app_meta_version = '123456-abcdefg'
     app_conf = LainConf()
-    app_conf.load(release_yaml, 'release', app_meta_version,
+    app_conf.load(release_yaml, app_meta_version,
                   domains=['registry.lain.local', 'lain.local'])
     assert app_conf.release.copy == [
         {'dest': '/usr/bin/hello', 'src': 'hello'}, {'dest': 'hi', 'src': 'hi'}]

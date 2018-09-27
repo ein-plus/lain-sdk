@@ -37,7 +37,7 @@ class LainYaml(object):
     # @param meta_yaml: loaded yaml string
     def load(self, meta_yaml, meta_version=None):
         parser = LainConf()
-        parser.load(meta_yaml, meta_version, None)
+        parser.load(meta_yaml, meta_version)
         v = parser.__dict__
         for k in v:
             setattr(self, k, v[k])

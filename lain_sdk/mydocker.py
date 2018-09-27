@@ -53,17 +53,17 @@ def _docker(args, cwd=None, env=os.environ, capture_output=False, print_stdout=T
         return retcode
 
 
-def gen_image_name(appname, phase, meta_version=None, docker_reg=None):
+def gen_image_name(appname, phase, meta_version=None, registry=None):
     """
-    {docker_reg}/{appname}:{phase}-{meta_version}
+    {registry}/{appname}:{phase}-{meta_version}
     """
     ret = '%s:%s' % (appname, phase)
     if meta_version is not None:
         ret = '%s-%s' % (ret, meta_version)
-    if docker_reg is None:
-        docker_reg = os.environ.get('LAIN_DOCKER_REGISTRY', None)
-    if docker_reg is not None:
-        ret = '%s/%s' % (docker_reg, ret)
+    if registry is None:
+        registry = os.environ.get('LAIN_DOCKER_REGISTRY', None)
+    if registry is not None:
+        ret = '%s/%s' % (registry, ret)
     return ret
 
 

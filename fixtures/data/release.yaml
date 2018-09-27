@@ -31,10 +31,6 @@ web:
   cmd: ./entry.sh
   port: 8000
   memory: 256m
-  healthcheck: '/kg/health/check'
   persistent_dirs:
     - /externalbin
     - /lain/app/logs
-  
-notify:
-  slack: "#lain"

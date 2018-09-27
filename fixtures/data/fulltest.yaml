@@ -20,6 +20,3 @@ web:
   cmd: tail -f /lain/app/bundle/prepare_version /lain/app/production
   port: 8000
   memory: 256m
-
-notify:
-  slack: "#lain"

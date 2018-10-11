@@ -52,6 +52,16 @@ def make_lain_yaml(appname=default_appname,
     return conf
 
 
+def test_crontab():
+    schedule = '12 * 28 * 3'
+    procs = {'cron.shit': {'cmd': 'job', 'memory': '128m', 'schedule': schedule}}
+    conf = make_lain_yaml(procs=procs)
+    assert conf.procs['shit'].schedule == schedule
+    assert conf.procs['shit'].type is ProcType.cron
+    with pytest.raises(ValidationError):
+        make_lain_yaml(procs={'cron.shit': {'schedule': '66 * * * *'}})
+
+
 def test_registry():
     registry = 'pornhub.com'
     conf = make_lain_yaml(registry=registry)

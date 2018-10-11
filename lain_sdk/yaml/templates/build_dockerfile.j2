@@ -5,12 +5,12 @@ ARG {{ arg }}
 {% endfor %}
 
 {% for copy in copy_list %}
-COPY {{ copy }} {{ workdir }} 
+COPY {{ copy }} {{ workdir }}
 {% endfor %}
 
 WORKDIR {{ workdir }}
 
 {% if scripts|length > 0 %}
-RUN {{ ' && '.join(scripts) }}
+RUN ({{ ') && ('.join(scripts) }})
 {% endif %}
 

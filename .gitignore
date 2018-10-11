@@ -6,3 +6,5 @@
 **/.ropeproject/
 .pytest_cache
 unittest.xml
+sample_lain_yaml/
+.envrc

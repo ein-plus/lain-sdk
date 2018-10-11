@@ -1,13 +1,19 @@
+PACKAGE_NAME = einplus_lain_sdk
+VERSION = $(shell cat lain_sdk/__init__.py | ag -o "(?<=').+(?=')")
+
 test: clean
-	- rm -f unittest.xml
-	py.test -s -vvvv --junit-xml=unittest.xml tests
+	py.test -s -v --doctest-modules --junit-xml=unittest.xml tests lain_sdk/yaml/parser.py lain_sdk/util.py
 
 test-cov: clean
-	- rm -f .coverage
-	- rm -rf htmlcov
-	py.test -vvvv --cov-report html --cov-report=term --cov=lain_sdk tests
+	py.test -vvvv -s --doctest-modules --cov-report html --cov-report=term --cov=lain_sdk tests lain_sdk/yaml/parser.py lain_sdk/util.py
 
 clean:
 	- find . -iname "*__pycache__" | xargs rm -rf
 	- find . -iname "*.pyc" | xargs rm -rf
-	- rm -rf dist build lain_sdk.egg-info
+	- rm -rf dist build lain_sdk.egg-info .coverage htmlcov unittest.xml
+
+overwrite-package:
+	devpi login root --password=$(PYPI_ROOT_PASSWORD)
+	devpi remove $(PACKAGE_NAME)==$(VERSION) || true
+	devpi use root/ein
+	devpi upload

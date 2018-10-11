@@ -27,7 +27,3 @@ web:
   persistent_dirs:
     - /externalbin
     - /lain/app/logs
-  stateful: true
-  
-notify:
-  slack: "#lain"

@@ -25,24 +25,8 @@ def new_prepare_yaml():
 
 
 @pytest.fixture
-def healthcheck_yaml():
-    yaml_file = path.join(FIXTURE_DATA_PATH, 'healthcheck.yaml')
-    with open(yaml_file) as f:
-        meta_yaml = f.read()
-    return meta_yaml
-
-
-@pytest.fixture
 def release_yaml():
     yaml_file = path.join(FIXTURE_DATA_PATH, 'release.yaml')
-    with open(yaml_file) as f:
-        meta_yaml = f.read()
-    return meta_yaml
-
-
-@pytest.fixture
-def validation_yaml():
-    yaml_file = path.join(FIXTURE_DATA_PATH, 'for_validate.yaml')
     with open(yaml_file) as f:
         meta_yaml = f.read()
     return meta_yaml

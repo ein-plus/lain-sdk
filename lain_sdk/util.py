@@ -2,10 +2,11 @@
 from __future__ import print_function
 
 import copy
+import enum
 import errno
+import json
 import os
 import shutil
-import subprocess
 from sys import stderr
 
 import requests
@@ -15,6 +16,13 @@ from requests.auth import HTTPBasicAuth
 from six import iteritems
 
 from .yaml.conf import user_config
+
+
+class RichEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if obj.__class__.__class__ is enum.EnumMeta:
+            return obj.name
+        return super(RichEncoder, self).default(obj)
 
 
 # copied from HongQN
@@ -88,22 +96,6 @@ def mkdir_p(path):
     except OSError as e:
         if not e.errno == errno.EEXIST:
             raise
-
-
-def meta_version(repo_dir, sha1=''):
-    if sha1:
-        git_cmd = ['git', 'log', '-1', sha1, '--pretty=format:%ct-%H']
-    else:
-        git_cmd = ['git', 'log', '-1', '--pretty=format:%ct-%H']
-
-    try:
-        commit_hash = subprocess.check_output(
-            git_cmd, cwd=repo_dir, stderr=subprocess.STDOUT)
-    except subprocess.CalledProcessError as e:
-        warn('Error getting cd Git commit hash: {}'.format(e.output))
-        return None
-
-    return commit_hash.decode()
 
 
 REGISTRY_CONNECT_TIMEOUT = 3

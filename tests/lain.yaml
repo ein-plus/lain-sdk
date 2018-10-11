@@ -23,7 +23,3 @@ web:  # 定义一个 web 服务
   secret_files:
     - "hello.hello"
     - "secret"  
-  
-notify:
-  slack: "#hello"  # 应用相关的通知和报警都会发送到该 slack channel
-

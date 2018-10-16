@@ -117,19 +117,23 @@ class LainYamlTests(TestCase):
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
+        web = hello_conf.procs['web']
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ('ENV_A=enva', 'ENV_B=envb', )
-        assert hello_conf.procs['web'].memory == 64000000
-        assert hello_conf.procs['web'].user == ''
-        assert hello_conf.procs['web'].workdir == ''
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs', )
-        assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['foo'].memory == 128000000
-        assert hello_conf.procs['foo'].cmd == ('worker', )
-        assert hello_conf.procs['foo'].type == ProcType.worker
-        assert hello_conf.procs['bar'].cmd == ('bar', )
-        assert hello_conf.procs['bar'].type == ProcType.web
-        assert hello_conf.procs['bar'].mountpoint == ('a.com', 'b.cn/xyz', )
+        assert web.env == ('ENV_A=enva', 'ENV_B=envb', )
+        assert web.memory == 64000000
+        assert web.user == ''
+        assert web.workdir == ''
+        assert web.volumes == ('/data', '/var/lib/mysql', '/lain/logs', )
+        assert web.port[80].port == 80
+        assert web.pod_name == 'hello.web.web'
+        foo = hello_conf.procs['foo']
+        assert foo.memory == 128000000
+        assert foo.cmd == ('worker', )
+        assert foo.type == ProcType.worker
+        bar = hello_conf.procs['bar']
+        assert bar.cmd == ('bar', )
+        assert bar.type == ProcType.web
+        assert bar.mountpoint == ('a.com', 'b.cn/xyz', )
 
     def test_lain_conf_port_with_type(self):
         meta_yaml = '''

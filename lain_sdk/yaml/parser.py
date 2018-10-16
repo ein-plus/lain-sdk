@@ -353,6 +353,7 @@ class LainYamlSchema(Schema):
 
             type_ = proc['type']
             name = proc['name']
+            proc['pod_name'] = f'{appname}.{type_.name}.{name}'
             if type_ is ProcType.web:
                 is_main = name == 'web'
                 mountpoint = proc['mountpoint']

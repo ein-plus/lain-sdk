@@ -120,20 +120,21 @@ class LainYamlTests(TestCase):
                         memory: 128m
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
-        hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
-        web = hello_conf.procs['web']
-        assert hello_conf.appname == 'hello'
+        lc = LainYaml(data=meta_yaml, meta_version=meta_version)
+        assert lc.meta_version == meta_version
+        web = lc.procs['web']
+        assert lc.appname == 'hello'
         assert tuple(web.env) == ('ENV_A=enva', 'ENV_B=envb', )
         assert web.memory == 64000000
         assert web.user == ''
         assert web.workdir == ''
         assert web.port[80].port == 80
         assert web.pod_name == 'hello.web.web'
-        foo = hello_conf.procs['foo']
+        foo = lc.procs['foo']
         assert foo.memory == 128000000
         assert tuple(foo.cmd) == ('worker', )
         assert foo.type == ProcType.worker
-        bar = hello_conf.procs['bar']
+        bar = lc.procs['bar']
         assert tuple(bar.cmd) == ('bar', )
         assert bar.type == ProcType.web
         assert tuple(bar.mountpoint) == ('a.com', 'b.cn/xyz', )

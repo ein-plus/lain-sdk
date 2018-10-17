@@ -61,8 +61,7 @@ class LainYaml(object):
         box = TolerantBox(loaded,
                           conversion_box=False,
                           default_box=True,
-                          default_box_attr=None,
-                          frozen_box=True)
+                          default_box_attr=None)
         self.box = box
         for k in loaded.keys():
             setattr(self, k, getattr(box, k))

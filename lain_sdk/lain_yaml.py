@@ -8,6 +8,7 @@ import time
 from functools import partial
 from subprocess import call
 
+import yaml
 from box import Box
 
 from . import mydocker
@@ -35,6 +36,7 @@ class LainYaml(object):
     """
 
     yaml_path = ''
+    raw = ''
 
     def __init__(self, data=None, meta_version=None, domains=[DOMAIN],
                  registry=PRIVATE_REGISTRY, lain_yaml_path=None, ignore_prepare=False):
@@ -56,13 +58,17 @@ class LainYaml(object):
         schema = LainYamlSchema(context={'meta_version': meta_version,
                                          'domains': domains,
                                          'registry': registry})
+        if isinstance(data, dict):
+            self.raw = yaml.dump(data)
+        else:
+            self.raw = data
+
         self.schema = schema
         loaded = schema.load(data)
         box = TolerantBox(loaded,
                           conversion_box=False,
                           default_box=True,
-                          default_box_attr=None,
-                          frozen_box=True)
+                          default_box_attr=None)
         self.box = box
         for k in loaded.keys():
             setattr(self, k, getattr(box, k))

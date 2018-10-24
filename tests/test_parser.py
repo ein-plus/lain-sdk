@@ -62,17 +62,21 @@ def test_crontab():
         make_lain_yaml(procs={'cron.shit': {'schedule': '66 * * * *'}})
 
 
-def test_registry():
+def test_image():
     registry = 'pornhub.com'
     conf = make_lain_yaml(registry=registry)
-    assert conf.procs['web'].image == f'{registry}/{default_appname}:release-{default_meta_version}'
+    web = conf.procs['web']
+    assert web.image == f'{registry}/{default_appname}:release-{default_meta_version}'
+    # sometimes we need to override proc image, that's why LainYaml is mutable
+    web.image = 'whatever'
+    assert web.image == 'whatever'
 
 
 def test_empty_release():
     conf = make_lain_yaml(release=None)
     assert conf.release.dest_base == ''
-    assert conf.release.copy == ()
-    assert conf.release.script == ()
+    assert tuple(conf.release.copy) == ()
+    assert tuple(conf.release.script) == ()
 
 
 class LainYamlTests(TestCase):
@@ -116,20 +120,24 @@ class LainYamlTests(TestCase):
                         memory: 128m
                     '''
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
-        hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
-        assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ('ENV_A=enva', 'ENV_B=envb', )
-        assert hello_conf.procs['web'].memory == 64000000
-        assert hello_conf.procs['web'].user == ''
-        assert hello_conf.procs['web'].workdir == ''
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs', )
-        assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['foo'].memory == 128000000
-        assert hello_conf.procs['foo'].cmd == ('worker', )
-        assert hello_conf.procs['foo'].type == ProcType.worker
-        assert hello_conf.procs['bar'].cmd == ('bar', )
-        assert hello_conf.procs['bar'].type == ProcType.web
-        assert hello_conf.procs['bar'].mountpoint == ('a.com', 'b.cn/xyz', )
+        lc = LainYaml(data=meta_yaml, meta_version=meta_version)
+        assert lc.meta_version == meta_version
+        web = lc.procs['web']
+        assert lc.appname == 'hello'
+        assert tuple(web.env) == ('ENV_A=enva', 'ENV_B=envb', )
+        assert web.memory == 64000000
+        assert web.user == ''
+        assert web.workdir == ''
+        assert web.port[80].port == 80
+        assert web.pod_name == 'hello.web.web'
+        foo = lc.procs['foo']
+        assert foo.memory == 128000000
+        assert tuple(foo.cmd) == ('worker', )
+        assert foo.type == ProcType.worker
+        bar = lc.procs['bar']
+        assert tuple(bar.cmd) == ('bar', )
+        assert bar.type == ProcType.web
+        assert tuple(bar.mountpoint) == ('a.com', 'b.cn/xyz', )
 
     def test_lain_conf_port_with_type(self):
         meta_yaml = '''
@@ -162,9 +170,9 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ('ENV_A=enva', 'ENV_B=envb')
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs')
-        assert hello_conf.procs['web'].logs == ()
+        assert tuple(hello_conf.procs['web'].env) == ('ENV_A=enva', 'ENV_B=envb')
+        assert tuple(hello_conf.procs['web'].volumes) == ('/data', '/var/lib/mysql', '/lain/logs')
+        assert tuple(hello_conf.procs['web'].logs) == ()
         assert hello_conf.procs['web'].port[80].port == 80
 
     def test_lain_conf_without_logs(self):
@@ -180,8 +188,7 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs', )
-        assert hello_conf.procs['web'].logs == ()
+        assert tuple(hello_conf.procs['web'].logs) == ()
 
     def test_lain_conf_logs(self):
         meta_yaml = '''
@@ -199,8 +206,7 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs')
-        assert hello_conf.procs['web'].logs == ('a.log', 'b.log')
+        assert tuple(hello_conf.procs['web'].logs) == ('a.log', 'b.log')
         annotation = json.loads(hello_conf.procs['web'].annotation)
         assert annotation['logs'] == ['a.log', 'b.log']
 
@@ -268,8 +274,7 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ('ENV_A=enva', 'ENV_B=envb')
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs')
+        assert tuple(hello_conf.procs['web'].env) == ('ENV_A=enva', 'ENV_B=envb')
         assert hello_conf.procs['web'].port[80].port == 80
 
     def test_lain_conf_proc_name(self):
@@ -326,10 +331,10 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ()
-        assert hello_conf.procs['web'].volumes == ('/lain/logs', )
+        assert tuple(hello_conf.procs['web'].env) == ()
+        assert tuple(hello_conf.procs['web'].volumes) == ('/lain/logs', )
         assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['web'].secret_files == ('/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello')
+        assert tuple(hello_conf.procs['web'].secret_files) == ('/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello')
 
     def test_lain_conf_proc_secret_files_bypass(self):
         meta_yaml = '''
@@ -360,10 +365,9 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ()
-        assert hello_conf.procs['web'].volumes == ('/lain/logs', )
+        assert tuple(hello_conf.procs['web'].env) == ()
         assert hello_conf.procs['web'].port[80].port == 80
-        assert hello_conf.procs['web'].secret_files == ('/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello')
+        assert tuple(hello_conf.procs['web'].secret_files) == ('/lain/app/hello/hello.tex', '/lain/app/ /secret', '/hello')
 
     def test_lain_conf_proc_env_notexists(self):
         meta_yaml = '''
@@ -390,8 +394,7 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ()
-        assert hello_conf.procs['web'].volumes == ('/lain/logs', )
+        assert tuple(hello_conf.procs['web'].env) == ()
         assert hello_conf.procs['web'].port[80].port == 80
 
     def test_lain_conf_auto_insert_default_mountpoint_for_procname_web(self):
@@ -426,9 +429,8 @@ class LainYamlTests(TestCase):
         meta_version = '1428553798.443334-7142797e64bb7b4d057455ef13de6be156ae81cc'
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
-        assert hello_conf.procs['web'].env == ('ENV_A=enva', 'ENV_B=envb')
+        assert tuple(hello_conf.procs['web'].env) == ('ENV_A=enva', 'ENV_B=envb')
         assert hello_conf.procs['web'].memory == 64000000
-        assert hello_conf.procs['web'].volumes == ('/data', '/var/lib/mysql', '/lain/logs')
         assert hello_conf.procs['web'].port[80].port == 80
 
     def test_lain_conf_no_mountpoint_for_not_web_type_proc(self):
@@ -457,7 +459,7 @@ class LainYamlTests(TestCase):
         hello_conf = LainYaml(data=meta_yaml, meta_version=meta_version)
         assert hello_conf.appname == 'hello'
         assert hello_conf.procs['worker'].memory == 64000000
-        assert hello_conf.procs['worker'].mountpoint == ()
+        assert tuple(hello_conf.procs['worker'].mountpoint) == ()
 
     def test_lain_conf_auto_prefix_default_mountpoint_for_proctype_web(self):
         meta_yaml = '''
@@ -617,25 +619,25 @@ def test_build_section_with_old_prepare(old_prepare_yaml):
     meta_version = '123456-abcdefg'
     app_conf = LainYaml(data=old_prepare_yaml, meta_version=meta_version)
     assert app_conf.build.base == 'sunyi00/centos-python:1.0.0'
-    assert app_conf.build.script == ('pip install -r pip-req.txt', )
-    assert app_conf.build.build_arg == ('ARG1=arg1', 'ARG2=arg2', )
+    assert tuple(app_conf.build.script) == ('pip install -r pip-req.txt', )
+    assert tuple(app_conf.build.build_arg) == ('ARG1=arg1', 'ARG2=arg2', )
 
 
 def test_build_section_with_new_prepare(new_prepare_yaml):
     meta_version = '123456-abcdefg'
     app_conf = LainYaml(data=new_prepare_yaml, meta_version=meta_version)
     assert app_conf.build.base == 'sunyi00/centos-python:1.0.0'
-    assert app_conf.build.script == ('pip install -r pip-req.txt', )
-    assert app_conf.build.build_arg == ('ARG1=arg1', 'ARG2=arg2', )
+    assert tuple(app_conf.build.script) == ('pip install -r pip-req.txt', )
+    assert tuple(app_conf.build.build_arg) == ('ARG1=arg1', 'ARG2=arg2', )
     assert app_conf.build.prepare.version == "0"
-    assert app_conf.build.prepare.keep == ('node_modules', 'bundle')
-    assert app_conf.build.prepare.script == ('touch /sbin/modprobe && chmod +x /sbin/modprobe',
-                                             'pip install -r pip-req.txt',
-                                             'rm -rf /lain/app/*',
-                                             'ls -1A | grep -v \'\\bnode_modules\\b\' | grep -v \'\\bbundle\\b\' | xargs rm -rf')
+    assert tuple(app_conf.build.prepare.keep) == ('node_modules', 'bundle')
+    assert tuple(app_conf.build.prepare.script) == ('touch /sbin/modprobe && chmod +x /sbin/modprobe',
+                                                    'pip install -r pip-req.txt',
+                                                    'rm -rf /lain/app/*',
+                                                    'ls -1A | grep -v \'\\bnode_modules\\b\' | grep -v \'\\bbundle\\b\' | xargs rm -rf')
 
 
 def test_release(release_yaml):
     meta_version = '123456-abcdefg'
     app_conf = LainYaml(data=release_yaml, meta_version=meta_version)
-    assert app_conf.release.copy == ({'dest': '/usr/bin/hello', 'src': 'hello'}, {'dest': 'hi', 'src': 'hi'})
+    assert tuple(app_conf.release.copy) == ({'dest': '/usr/bin/hello', 'src': 'hello'}, {'dest': 'hi', 'src': 'hi'})

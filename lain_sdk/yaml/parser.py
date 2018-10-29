@@ -313,7 +313,11 @@ class LainYamlSchema(Schema):
             if not name:
                 continue
             clause['name'] = name
-            clause['type'] = type_
+            if not clause.get('type'):
+                clause['type'] = type_
+
+            if not clause['type']:
+                raise ValidationError(f'cannot infer proc type of {key}:{clause}')
             if name in procs:
                 raise ValidationError(f'duplicate proc name: {name}')
             procs[name] = data.pop(key)
@@ -362,7 +366,7 @@ class LainYamlSchema(Schema):
                 if name == 'web' and not mountpoint:
                     proc['mountpoint'] = domains
                 elif not mountpoint:
-                    raise ValidationError(f'when proc.type is web, but proc.name is not web, you must declare mountpoint, got {proc}')
+                    raise ValidationError(f'you must define mountpoint for proc {name}, only proc named web will have free mountpoints')
                 else:
                     proc['mountpoint'] = self.complete_mountpoint(mountpoint, domains, main_entrance=is_main)
 

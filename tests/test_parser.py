@@ -7,8 +7,8 @@ import pytest
 from marshmallow import ValidationError
 
 from lain_sdk.lain_yaml import LainYaml
-from lain_sdk.yaml.parser import DOMAIN, LainYamlSchema, ProcType
 from lain_sdk.yaml.conf import PRIVATE_REGISTRY
+from lain_sdk.yaml.parser import DOMAIN, LainYamlSchema, ProcType
 
 DOMAINS = ['extra.domain1.com', 'extra.domain2.org', DOMAIN]
 
@@ -56,8 +56,10 @@ def test_crontab():
     schedule = '12 * 28 * 3'
     procs = {'cron.shit': {'cmd': 'job', 'memory': '128m', 'schedule': schedule}}
     conf = make_lain_yaml(procs=procs)
-    assert conf.procs['shit'].schedule == schedule
-    assert conf.procs['shit'].type is ProcType.cron
+    cron_proc = conf.procs['shit']
+    assert cron_proc.schedule == schedule
+    assert cron_proc.type is ProcType.cron
+    assert json.loads(cron_proc.annotation)['schedule'] == cron_proc.schedule
     with pytest.raises(ValidationError):
         make_lain_yaml(procs={'cron.shit': {'schedule': '66 * * * *'}})
 

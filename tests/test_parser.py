@@ -60,8 +60,6 @@ def test_crontab():
     assert cron_proc.schedule == schedule
     assert cron_proc.type is ProcType.cron
     assert json.loads(cron_proc.annotation)['schedule'] == cron_proc.schedule
-    with pytest.raises(ValidationError):
-        make_lain_yaml(procs={'cron.shit': {'schedule': '66 * * * *'}})
 
 
 def test_image():

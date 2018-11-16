@@ -45,7 +45,7 @@ def parse_timespan(s):
     elif isinstance(s, string_types):
         try:
             return humanfriendly.parse_timespan(s)
-        except humanfriendly.InvalidTimespan as e:
+        except humanfriendly.InvalidTimespan:
             raise ValidationError(f'failed to parse timespan {s}, you can write int or humanfriendly timespan, see https://humanfriendly.readthedocs.io/en/latest/api.html#humanfriendly.parse_timespan')
     else:
         raise ValidationError(f'failed to parse timespan {s}, you can write int or humanfriendly timespan, see https://humanfriendly.readthedocs.io/en/latest/api.html#humanfriendly.parse_timespan')
@@ -204,7 +204,7 @@ class ProcSchema(Schema):
     num_instances = fields.Int(missing=1)
     cpu = fields.Int(missing=0)
     memory = fields.Function(deserialize=parse_memory, missing=parse_memory('32m'))
-    port = fields.Function(deserialize=parse_port)
+    port = fields.Function(deserialize=parse_port, missing={})
     mountpoint = fields.List(fields.Str(), missing=[])
     user = fields.Str(missing='')
     workdir = fields.Str(missing='')

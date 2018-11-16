@@ -15,5 +15,4 @@ clean:
 overwrite-package:
 	devpi login root --password=$(PYPI_ROOT_PASSWORD)
 	devpi remove $(PACKAGE_NAME)==$(VERSION) || true
-	devpi use root/ein
 	devpi upload

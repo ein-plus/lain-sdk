@@ -59,6 +59,7 @@ def test_crontab():
     cron_proc = conf.procs['shit']
     assert cron_proc.schedule == schedule
     assert cron_proc.type is ProcType.cron
+    assert cron_proc.port == {}
     assert json.loads(cron_proc.annotation)['schedule'] == cron_proc.schedule
 
 

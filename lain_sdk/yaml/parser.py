@@ -28,13 +28,6 @@ VALID_PREPARE_VERSION_PATTERN = re.compile(r'^[a-zA-Z0-9]+$')
 VALID_ENV_PATTERN = re.compile(r'^\w+=')
 INVALID_APPNAMES = ('service', 'resource', 'portal')
 INVALID_VOLUMES = {'/', '/lain', DOCKER_APP_ROOT}
-CRONTAB_PATTERN = re.compile(r'{0}\s+{1}\s+{2}\s+{3}\s+{4}'.format(
-    r'(?P<minute>\*|[0-5]?\d)',
-    r'(?P<hour>\*|[01]?\d|2[0-3])',
-    r'(?P<day>\*|0?[1-9]|[12]\d|3[01])',
-    r'(?P<month>\*|0?[1-9]|1[012])',
-    r'(?P<day_of_week>\*|[0-6](\-[0-6])?)'
-))
 
 
 def parse_version(s):
@@ -207,10 +200,7 @@ class ProcSchema(Schema):
     image = fields.Str(missing='')
     entrypoint = fields.Function(deserialize=parse_command)
     cmd = fields.Function(deserialize=parse_command)
-    schedule = fields.Str(
-        validate=validate.Regexp(CRONTAB_PATTERN, error=f'String does not match expected pattern: {CRONTAB_PATTERN}'),
-        missing='',
-    )
+    schedule = fields.Str(missing='')
     num_instances = fields.Int(missing=1)
     cpu = fields.Int(missing=0)
     memory = fields.Function(deserialize=parse_memory, missing=parse_memory('32m'))
@@ -231,7 +221,7 @@ class ProcSchema(Schema):
         # cron procs are special, some fields are necessary, some must not be
         # present
         if data['type'] is ProcType.cron:
-            if 'schedule' not in data:
+            if not data.get('schedule'):
                 raise ValidationError(f'when type is cron, must provide schedule, got {data}')
 
     @post_load

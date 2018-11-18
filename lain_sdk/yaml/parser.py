@@ -198,7 +198,7 @@ class ProcSchema(Schema):
     name = fields.Function(deserialize=parse_proc_name, required=True)
     type_ = EnumField(ProcType, missing=ProcType.worker, data_key='type', attribute='type')
     image = fields.Str(missing='')
-    entrypoint = fields.Function(deserialize=parse_command)
+    entrypoint = fields.Function(deserialize=parse_command, missing=[])
     cmd = fields.Function(deserialize=parse_command)
     schedule = fields.Str(missing='')
     num_instances = fields.Int(missing=1)

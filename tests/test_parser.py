@@ -129,6 +129,7 @@ class LainYamlTests(TestCase):
         assert web.memory == 64000000
         assert web.user == ''
         assert web.workdir == ''
+        assert web.entrypoint == []
         assert web.port[80].port == 80
         assert web.pod_name == 'hello.web.web'
         foo = lc.procs['foo']

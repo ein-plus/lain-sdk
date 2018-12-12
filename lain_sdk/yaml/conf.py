@@ -7,4 +7,4 @@ etc = user_config.get_config()
 
 PRIVATE_REGISTRY = None if etc is None else etc.get(
     'private_docker_registry', None)
-DOMAIN = None if etc is None else etc.get('domain', 'lain.local')
+DOMAIN = None if not etc else etc.get('domain', 'lain.local')

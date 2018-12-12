@@ -80,6 +80,13 @@ def test_empty_release():
     assert tuple(conf.release.script) == ()
 
 
+def test_annotation():
+    conf = make_lain_yaml()
+    web = conf.procs['web']
+    annotation = json.loads(web.annotation)
+    assert web.mountpoint == annotation['mountpoint']
+
+
 class LainYamlTests(TestCase):
 
     def test_lain_conf_smoke(self):

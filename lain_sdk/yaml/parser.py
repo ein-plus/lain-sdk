@@ -239,7 +239,6 @@ class ProcSchema(Schema):
         data['cloud_volumes'] = {}
         # TODO: move functionality to deployd
         data['system_volumes'] = DEFAULT_SYSTEM_VOLUMES
-        data['annotation'] = json.dumps(data, cls=RichEncoder)
         return data
 
 
@@ -359,6 +358,8 @@ class LainYamlSchema(Schema):
                     raise ValidationError(f'you must define mountpoint for proc {name}, only proc named web will have free mountpoints')
                 else:
                     proc['mountpoint'] = self.complete_mountpoint(mountpoint, domains, main_entrance=is_main)
+
+            proc['annotation'] = json.dumps(proc, cls=RichEncoder)
 
         return data
 

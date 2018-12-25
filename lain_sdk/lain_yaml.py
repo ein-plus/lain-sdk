@@ -12,7 +12,7 @@ import yaml
 from box import Box
 
 from . import mydocker
-from .util import error, file_parent_dir, get_cfd, info, mkdir_p, rm, warn
+from .util import error, file_parent_dir, get_cfd, info, mkdir_p, rm, warn, meta_version
 from .yaml.conf import DOCKER_APP_ROOT, DOMAIN, PRIVATE_REGISTRY, user_config
 from .yaml.parser import LainYamlSchema
 
@@ -75,22 +75,7 @@ class LainYaml(object):
 
     @staticmethod
     def calculate_meta_version(repo_dir, sha1=''):
-        if not os.path.isdir(repo_dir):
-            repo_dir = os.path.dirname(repo_dir)
-
-        if sha1:
-            git_cmd = ['git', 'log', '-1', sha1, '--pretty=format:%ct-%H']
-        else:
-            git_cmd = ['git', 'log', '-1', '--pretty=format:%ct-%H']
-
-        try:
-            commit_hash = subprocess.check_output(
-                git_cmd, cwd=repo_dir, stderr=subprocess.STDOUT)
-        except subprocess.CalledProcessError as e:
-            warn('Error getting cd Git commit hash: {}'.format(e.output))
-            return None
-
-        return commit_hash.decode()
+        return meta_version(repo_dir, sha1)
 
     def init_act(self, ignore_prepare=False):
         if self.act is True:

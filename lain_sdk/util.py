@@ -7,6 +7,7 @@ import errno
 import json
 import os
 import shutil
+import subprocess
 from sys import stderr
 
 import requests
@@ -160,3 +161,22 @@ def get_phase_config_from_registry(registry):
             if registry == "registry.{}".format(v.get('domain', '')):
                 return k, copy.deepcopy(v)
     return None, None
+
+
+def meta_version(repo_dir, sha1=''):
+    if not os.path.isdir(repo_dir):
+        repo_dir = os.path.dirname(repo_dir)
+
+    if sha1:
+        git_cmd = ['git', 'log', '-1', sha1, '--pretty=format:%ct-%H']
+    else:
+        git_cmd = ['git', 'log', '-1', '--pretty=format:%ct-%H']
+
+    try:
+        commit_hash = subprocess.check_output(
+            git_cmd, cwd=repo_dir, stderr=subprocess.STDOUT)
+    except subprocess.CalledProcessError as e:
+        warn('Error getting cd Git commit hash: {}'.format(e.output))
+        return None
+
+    return commit_hash.decode()

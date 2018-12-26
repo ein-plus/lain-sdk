@@ -8,7 +8,7 @@ requirements = [
     'Jinja2>=2.7.3',
     'PyYAML>=3.12',
     'enum34;python_version<"3.4"',
-    'requests>=2.6.1',
+    'requests!=2.11.0,<2.12,>=2.6.1',
     'docker>=2.6.1',
     'jsonschema>=2.5.1',
     'marshmallow>=3.0.0b16',

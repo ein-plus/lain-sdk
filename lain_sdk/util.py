@@ -137,8 +137,6 @@ def get_jwt_for_registry(auth_url, registry, appname):
         cfg = auth.resolve_authconfig(auth.load_config(), registry=registry)
         username = cfg['username'] if 'username' in cfg else cfg['Username']
         password = cfg['password'] if 'password' in cfg else cfg['Password']
-        # phase, phase_config = get_phase_config_from_registry(registry)
-        # domain = phase_config.get(user_config.domain_key, '')
         # only use `lain.local` as service
         url = "%s?service=%s&scope=repository:%s:push,pull&account=%s" % (
             auth_url, "lain.local", appname, username)
@@ -152,15 +150,6 @@ def get_jwt_for_registry(auth_url, registry, appname):
 
 def lain_based_path(path, base='/lain/app'):
     return os.path.normpath(os.path.join(base, path))
-
-
-def get_phase_config_from_registry(registry):
-    etc = user_config.get_config()
-    for (k, v) in iteritems(etc):
-        if isinstance(v, dict):
-            if registry == "registry.{}".format(v.get('domain', '')):
-                return k, copy.deepcopy(v)
-    return None, None
 
 
 def meta_version(repo_dir, sha1=''):

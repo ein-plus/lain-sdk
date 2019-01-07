@@ -17,7 +17,7 @@ default_appname = 'hello'
 default_build = {'base': 'golang', 'script': ['echo buildscript1', 'echo buildscript2']}
 default_release = {'dest_base': 'ubuntu', 'copy': [{'src': 'hello', 'dest': '/usr/bin/hello'}, {'src': 'entry.sh', 'dest': '/entry.sh'}]}
 default_test = {'script': ['go test']}
-default_web = {'cmd': 'hello', 'port': 80, 'memory': '64m', 'env': ['ENV_A=enva', 'ENV_B=envb'], 'volumes': ['/data', '/var/lib/mysql']}
+default_web = {'cmd': 'hello', 'port': 80, 'memory': '64m', 'env': ['ENV_A=enva', 'ENV_B=envb'], 'volumes': ['/data', '/var/lib/mysql'], 'shared_volumes': {'global': ['/jfs/alg:/alg', '/jfs/ltp_data:/data/models/ltp_data', '/jfs/shared_volumes/hello:/appdata/hello']}}
 default_procs = {'web.bar': {'cmd': 'bar', 'port': 8080, 'mountpoint': ['a.com', 'b.cn/xyz']}, 'worker.foo': {'cmd': 'worker', 'memory': '128m'}}
 default_meta_version = '1428553798-7142797e64bb7b4d057455ef13de6be156ae81cc'
 
@@ -87,6 +87,31 @@ def test_annotation():
     assert web.mountpoint == annotation['mountpoint']
 
 
+def test_volumes():
+    volumes = ['/data', '/lain/logs', '/var/lib/mysql']
+    volumes.sort()
+    conf = make_lain_yaml()
+    web = conf.procs['web']
+    volumes_box = web.volumes
+    volumes_box.sort()
+    assert volumes == volumes_box
+
+
+def test_shared_volumes():
+    global_shared_volumes = [
+        '/jfs/alg:/alg',
+        '/jfs/ltp_data:/data/models/ltp_data',
+        '/jfs/shared_volumes/hello:/appdata/hello'
+    ]
+    global_shared_volumes.sort()
+    conf = make_lain_yaml()
+    web = conf.procs['web']
+    shared_volumes_box = web.shared_volumes
+    global_shared_volumes_box = shared_volumes_box.get('global') or []
+    global_shared_volumes_box.sort()
+    assert global_shared_volumes == global_shared_volumes_box
+
+
 class LainYamlTests(TestCase):
 
     def test_lain_conf_smoke(self):
@@ -117,6 +142,11 @@ class LainYamlTests(TestCase):
                         volumes:
                             - /data
                             - /var/lib/mysql
+                        shared_volumes:
+                            global:
+                                - /jfs/alg:/alg
+                                - /jfs/ltp_data:/data/models/ltp_data
+                                - /jfs/shared_volumes/hello:/appdata/hello
                     web.bar:
                         cmd: bar
                         port: 8080

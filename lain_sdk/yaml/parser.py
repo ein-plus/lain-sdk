@@ -104,6 +104,34 @@ def parse_memory(s):
     return humanfriendly.parse_size(s) if isinstance(s, string_types) else s
 
 
+def parse_shared_volumes(s):
+    ret = {}
+    if isinstance(s, dict):
+        global_list = s.get('global', [])
+        if isinstance(global_list, list):
+            validated_list = []
+            for v in global_list:
+                v_vector = v.strip().split(":")
+                if len(v_vector) == 1:
+                    v_src = v_vector[0]
+                    v_target = v_vector[0]
+                elif len(v_vector) == 2:
+                    v_src = v_vector[0]
+                    v_target = v_vector[1]
+                else:
+                    raise ValidationError(f'shared_volumes invalid volume, got {v}')
+                if all([os.path.isabs(v_src), os.path.isabs(v_target)]):
+                    validated_list.append(":".join([v_src, v_target]))
+                else:
+                    raise ValidationError(f'shared_volumes volume item must be absolute path, got {v}')
+            ret['global'] = validated_list
+        else:
+            raise ValidationError(f'shared_volumes global list must be a list, got {global_list}')
+    else:
+        raise ValidationError(f'shared_volumes must be a dict, got {s}')
+    return ret
+
+
 def parse_command(cmd):
     '''
     >>> parse_command('echo whatever')
@@ -211,6 +239,7 @@ class ProcSchema(Schema):
     env = fields.List(fields.Str(validate=validate.Regexp(VALID_ENV_PATTERN)), missing=[])
     volumes = fields.List(fields.Str(validate=validate_volume), missing=[])
     persistent_dirs = fields.List(fields.Str(validate=validate_volume), missing=[])
+    shared_volumes = fields.Function(deserialize=parse_shared_volumes, missing={})
     logs = fields.List(fields.Str(validate=lambda s: not os.path.isabs(s)), missing=[])
     secret_files = fields.List(fields.Function(deserialize=parse_secret_path), missing=[])
     setup_time = fields.Function(deserialize=parse_timespan, missing=0)

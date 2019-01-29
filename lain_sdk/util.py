@@ -153,8 +153,10 @@ def lain_based_path(path, base='/lain/app'):
 
 
 def meta_version(repo_dir, sha1=''):
-    if not os.path.isdir(repo_dir):
-        repo_dir = os.path.dirname(repo_dir)
+    abs_path = os.path.abspath(repo_dir)
+
+    if not os.path.isdir(abs_path):
+        abs_path = os.path.dirname(abs_path)
 
     if sha1:
         git_cmd = ['git', 'log', '-1', sha1, '--pretty=format:%ct-%H']
@@ -163,7 +165,7 @@ def meta_version(repo_dir, sha1=''):
 
     try:
         commit_hash = subprocess.check_output(
-            git_cmd, cwd=repo_dir, stderr=subprocess.STDOUT)
+            git_cmd, cwd=abs_path, stderr=subprocess.STDOUT)
     except subprocess.CalledProcessError as e:
         warn('Error getting cd Git commit hash: {}'.format(e.output))
         return None

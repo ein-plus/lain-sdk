@@ -324,7 +324,7 @@ class LainYamlSchema(Schema):
 
         if 'build' not in data:
             data['build'] = {
-                'base': 'scratch',
+                'base': 'busybox',
                 'script': ['echo DUMMY']
             }
 
